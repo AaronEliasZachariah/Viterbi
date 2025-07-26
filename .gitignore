@@ -40,4 +40,8 @@ Desktop.ini
 *.log
 
 # Local configuration file
-local.properties 
+local.properties
+
+# Downloaded files
+*.zip
+gradle.zip 
