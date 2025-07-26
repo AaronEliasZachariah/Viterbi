@@ -50,4 +50,4 @@ We'll build this step by step, one commit at a time. Each commit will introduce 
 
 ---
 
-*Built with ❤️ using modern multiplatform technologies* 
+*I used AI to generate this README* 
