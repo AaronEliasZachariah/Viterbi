@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * ViewModel for managing note-related UI state and business logic.
@@ -28,6 +29,9 @@ class NoteViewModel(
     private val _selectedNote = MutableStateFlow<Note?>(null)
     val selectedNote: StateFlow<Note?> = _selectedNote.asStateFlow()
     
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+    
     init {
         loadNotes()
     }
@@ -38,10 +42,13 @@ class NoteViewModel(
     private fun loadNotes() {
         coroutineScope.launch {
             _isLoading.value = true
+            _error.value = null
             try {
                 repository.getAllNotes().collect { notesList ->
                     _notes.value = notesList
                 }
+            } catch (e: Exception) {
+                _error.value = "Failed to load notes: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -60,7 +67,13 @@ class NoteViewModel(
         )
         
         coroutineScope.launch {
-            repository.saveNote(note)
+            try {
+                withContext(Dispatchers.IO) {
+                    repository.saveNote(note)
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to create note: ${e.message}"
+            }
         }
     }
     
@@ -69,8 +82,14 @@ class NoteViewModel(
      */
     fun updateNote(note: Note) {
         coroutineScope.launch {
-            val updatedNote = note.copy(updatedAt = kotlinx.datetime.Clock.System.now())
-            repository.saveNote(updatedNote)
+            try {
+                val updatedNote = note.copy(updatedAt = kotlinx.datetime.Clock.System.now())
+                withContext(Dispatchers.IO) {
+                    repository.saveNote(updatedNote)
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to update note: ${e.message}"
+            }
         }
     }
     
@@ -79,7 +98,13 @@ class NoteViewModel(
      */
     fun deleteNote(id: String) {
         coroutineScope.launch {
-            repository.deleteNote(id)
+            try {
+                withContext(Dispatchers.IO) {
+                    repository.deleteNote(id)
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to delete note: ${e.message}"
+            }
         }
     }
     
@@ -88,7 +113,13 @@ class NoteViewModel(
      */
     fun toggleFavorite(id: String) {
         coroutineScope.launch {
-            repository.toggleFavorite(id)
+            try {
+                withContext(Dispatchers.IO) {
+                    repository.toggleFavorite(id)
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to toggle favorite: ${e.message}"
+            }
         }
     }
     
@@ -104,12 +135,25 @@ class NoteViewModel(
      */
     fun searchNotes(query: String) {
         coroutineScope.launch {
-            if (query.isBlank()) {
-                loadNotes()
-            } else {
-                val searchResults = repository.searchNotes(query)
-                _notes.value = searchResults
+            try {
+                if (query.isBlank()) {
+                    loadNotes()
+                } else {
+                    val searchResults = withContext(Dispatchers.IO) {
+                        repository.searchNotes(query)
+                    }
+                    _notes.value = searchResults
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to search notes: ${e.message}"
             }
         }
+    }
+    
+    /**
+     * Clear error state
+     */
+    fun clearError() {
+        _error.value = null
     }
 } 

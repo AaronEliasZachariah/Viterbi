@@ -3,6 +3,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.compose")
     kotlin("plugin.serialization") version "1.9.20"
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
 }
 
 kotlin {
@@ -44,7 +45,10 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                // Android-specific dependencies will go here
+                // Room database for Android
+                implementation("androidx.room:room-runtime:2.6.1")
+                implementation("androidx.room:room-ktx:2.6.1")
+                ksp("androidx.room:room-compiler:2.6.1")
             }
         }
         val jsMain by getting {

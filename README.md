@@ -43,10 +43,12 @@ As we build this app, you'll learn:
 
 We'll build this step by step, one commit at a time. Each commit will introduce new concepts and features.
 
-### Current Status: Project Setup
-- Setting up Kotlin Multiplatform project structure
-- Configuring build tools and dependencies
-- Creating basic project scaffolding
+### Current Status: Persistent Storage & Navigation
+- ✅ Room database for Android persistent storage
+- ✅ LocalStorage for Web persistent storage
+- ✅ Note detail/editing screen
+- ✅ Error handling and loading states
+- ✅ Navigation between list and detail screens
 
 ---
 

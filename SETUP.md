@@ -40,21 +40,29 @@ Viterbi/
 2. **Repository Pattern** (`NoteRepository.kt`)
    - Interface defining data operations
    - Platform-agnostic contract
-   - Ready for different implementations (Room, LocalStorage, etc.)
+   - **Android**: Room database implementation
+   - **Web**: LocalStorage implementation
 
 3. **ViewModel Architecture** (`NoteViewModel.kt`)
    - MVVM pattern implementation
    - Reactive state management with StateFlow
    - Business logic for CRUD operations
+   - **Error handling** and loading states
 
 4. **Reusable UI Components**
    - `NoteCard`: Beautiful card component for displaying notes
    - `NoteListScreen`: Complete main screen with search and add functionality
+   - `NoteDetailScreen`: Full note editing experience
    - Material Design 3 styling
 
 5. **Platform-Specific Entry Points**
-   - Android: `MainActivity.kt` with Compose integration
-   - Web: `Main.kt` with browser rendering
+   - **Android**: `MainActivity.kt` with navigation and Room database
+   - **Web**: `Main.kt` with navigation and LocalStorage
+
+6. **Persistent Storage**
+   - **Android**: SQLite database with Room ORM
+   - **Web**: Browser LocalStorage with JSON serialization
+   - Data survives app restarts and browser sessions
 
 ## 🛠️ What You've Learned
 
@@ -110,22 +118,24 @@ Viterbi/
 
 In the next commits, we'll add:
 
-1. **Persistent Storage**
-   - Android: Room database
-   - Web: LocalStorage/IndexedDB
-
-2. **Note Detail Screen**
-   - Full note editing capabilities
+1. **Advanced Features**
+   - Categories/tags for organizing notes
+   - Export/import functionality
    - Rich text formatting
 
-3. **Advanced Features**
-   - Categories/tags
-   - Export/import
-   - Cloud sync
+2. **Cloud Sync**
+   - Firebase integration
+   - Cross-device synchronization
+   - User authentication
 
-4. **Platform-Specific Enhancements**
-   - Android: Widgets, notifications
-   - Web: PWA features, offline support
+3. **Platform-Specific Enhancements**
+   - Android: Widgets, notifications, sharing
+   - Web: PWA features, offline support, keyboard shortcuts
+
+4. **Performance Optimizations**
+   - Lazy loading for large note collections
+   - Search indexing
+   - Background sync
 
 ## 💡 Key Learning Points
 

@@ -7,10 +7,12 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.viterbi.shared.InMemoryNoteRepository
+import com.viterbi.shared.AndroidNoteRepository
+import com.viterbi.shared.Note
 import com.viterbi.shared.NoteViewModel
+import com.viterbi.shared.ui.NoteDetailScreen
 import com.viterbi.shared.ui.NoteListScreen
 
 /**
@@ -23,8 +25,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Initialize our app components
-        val repository = InMemoryNoteRepository()
+        // Initialize our app components with persistent storage
+        val repository = AndroidNoteRepository(this)
         val viewModel = NoteViewModel(repository)
         
         setContent {
@@ -33,23 +35,47 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Our main app screen - shared across platforms!
-                    NoteListScreen(
-                        viewModel = viewModel,
-                        onNoteClick = { note ->
-                            // TODO: Navigate to note detail screen
-                            // For now, we'll just show a simple toast
-                            android.widget.Toast.makeText(
-                                this@MainActivity,
-                                "Selected: ${note.title}",
-                                android.widget.Toast.LENGTH_SHORT
-                            ).show()
+                    // Simple navigation state
+                    var currentScreen by remember { mutableStateOf<Screen>(Screen.List) }
+                    var selectedNote by remember { mutableStateOf<Note?>(null) }
+                    
+                    when (currentScreen) {
+                        Screen.List -> {
+                            NoteListScreen(
+                                viewModel = viewModel,
+                                onNoteClick = { note ->
+                                    selectedNote = note
+                                    currentScreen = Screen.Detail
+                                },
+                                onCreateNewNote = {
+                                    selectedNote = null
+                                    currentScreen = Screen.Detail
+                                }
+                            )
                         }
-                    )
+                        Screen.Detail -> {
+                            NoteDetailScreen(
+                                note = selectedNote,
+                                viewModel = viewModel,
+                                onBackClick = {
+                                    currentScreen = Screen.List
+                                    selectedNote = null
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
     }
+}
+
+/**
+ * Simple navigation enum for our app screens
+ */
+sealed class Screen {
+    object List : Screen()
+    object Detail : Screen()
 }
 
 /**

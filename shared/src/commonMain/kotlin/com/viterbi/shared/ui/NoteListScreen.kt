@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,11 +28,13 @@ import com.viterbi.shared.NoteViewModel
 @Composable
 fun NoteListScreen(
     viewModel: NoteViewModel,
-    onNoteClick: (Note) -> Unit
+    onNoteClick: (Note) -> Unit,
+    onCreateNewNote: () -> Unit = {}
 ) {
     val notes by viewModel.notes.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedNote by viewModel.selectedNote.collectAsState()
+    val error by viewModel.error.collectAsState()
     
     var searchQuery by remember { mutableStateOf("") }
     var showAddDialog by remember { mutableStateOf(false) }
@@ -43,7 +46,7 @@ fun NoteListScreen(
         TopAppBar(
             title = { Text("Viterbi Notes") },
             actions = {
-                IconButton(onClick = { showAddDialog = true }) {
+                IconButton(onClick = { onCreateNewNote() }) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add new note"
@@ -71,6 +74,38 @@ fun NoteListScreen(
             },
             singleLine = true
         )
+        
+        // Error display
+        error?.let { errorMessage ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = { viewModel.clearError() }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Dismiss error",
+                            tint = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+            }
+        }
         
         // Notes list
         if (isLoading) {
@@ -119,7 +154,7 @@ fun NoteListScreen(
         }
     }
     
-    // Add note dialog
+    // Add note dialog (fallback for platforms that don't support navigation)
     if (showAddDialog) {
         AddNoteDialog(
             onDismiss = { showAddDialog = false },
